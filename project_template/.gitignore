@@ -1,0 +1,29 @@
+# Python
+__pycache__
+
+# Virtualenv
+.venv
+
+# Jupyter
+.ipynb_checkpoints
+
+# Database
+db.sqlite3
+databases
+
+# Environment
+.env
+.env.swp
+
+# ansible vault
+.vault_password
+
+# coverage
+.coverage
+
+# static files
+staticfiles
+
+# vim
+*.swp
+*.swo
