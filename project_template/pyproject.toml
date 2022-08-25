@@ -1,0 +1,32 @@
+[tool.black]
+line-length = 119
+
+[tool.isort]
+profile = "black"
+
+[tool.flake8]
+statistics = "True"
+ignore = ["D203" , "W503"]
+max-line-length = 119
+exclude = '''
+    .git,
+'''
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.test"
+filterwarnings = [
+    "ignore::django.utils.deprecation.RemovedInDjango50Warning",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["apps"]
+omit = ["apps/*/tests/*", "apps/*/migrations/*"]
+command_line = "-m pytest"
+
+[tool.mypy]
+ignore_missing_imports = true
+plugins = ["mypy_django_plugin.main"]
+
+[tool.django-stubs]
+django_settings_module = "config.settings.development"
