@@ -1,0 +1,16 @@
+black
+coverage
+django-stubs
+djhtml
+jupyterlab
+mypy
+nb-black
+notebook
+pip-tools
+pyproject-flake8
+pytest
+pytest-django
+rich
+Sphinx
+sphinx-rtd-theme
+typer[all]

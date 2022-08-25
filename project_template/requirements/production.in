@@ -1,0 +1,7 @@
+Django
+django-debug-toolbar
+django-environ
+django-extensions
+gunicorn
+httpx
+psycopg2
