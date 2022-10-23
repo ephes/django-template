@@ -1,8 +1,9 @@
 ---
 # public variables for deployment
-postgres_database: {{ project_name }}
-postgres_user: {{ project_name }}
-username: {{ project_name }}
+project_name: "foo"
+postgres_database: "{{ project_name }}"
+postgres_user: "{{ project_name }}"
+username: "{{ project_name }}"
 home_path: "/home/{{ username }}"
 site_path: "{{ home_path }}/site"
 global_python: python3.10
@@ -16,4 +17,4 @@ traefik_config_dir: "/etc/traefik/dynamic"
 traefik_config_path: "{{ traefik_config_dir }}/{{ username }}.traefik.yml"
 systemd_unit_path: "/etc/systemd/system/{{ username }}.service"
 gunicorn_number_of_workers: 4
-fqdn: {{ project_name }}.staging.django-cast.com
+fqdn: "{{ project_name }}.staging.django-cast.com"
