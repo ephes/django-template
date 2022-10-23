@@ -8,6 +8,7 @@ You can use these by referring to their release files during project/app creatio
 
 
 Create an app after you created the project:
+
     ./manage.py startapp --template https://github.com/ephes/django-template/releases/download/v0.1.0/app_template.zip <app_name>
 
 # Update Requirements
