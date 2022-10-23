@@ -37,9 +37,13 @@ from rich import print  # noqa
 cli = typer.Typer()
 
 
+def get_project_root():
+    return Path(__file__).parent.resolve()
+
+
 def get_pythonpath():
     """Add project root and model directory to string"""
-    project_root = str(Path(__file__).parent.resolve())
+    project_root = str(get_project_root())
     model_root = str(Path(__file__).parent / "model")
     return f"{project_root}:{model_root}"
 
@@ -73,6 +77,18 @@ def coverage():
         subprocess.call(["open", "htmlcov/index.html"])
     elif platform.system() == "Linux" and "Microsoft" in platform.release():  # on WSL
         subprocess.call(["explorer.exe", r"htmlcov\index.html"])
+
+
+@cli.command()
+def jupyterlab():
+    """
+    Start a jupyterlab server.
+    """
+    project_root = get_project_root()
+    notebook_dir = project_root / "notebooks"
+    notebook_dir.mkdir(exist_ok=True)
+    env = env_with_pythonpath() | {"DJANGO_ALLOW_ASYNC_UNSAFE": "true"}
+    subprocess.call([sys.executable, "manage.py", "shell_plus", "--notebook"], env=env)
 
 
 @cli.command()
