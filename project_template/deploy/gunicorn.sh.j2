@@ -1,0 +1,4 @@
+#!/bin/bash
+gunicorn_path={{ venv_bin }}/gunicorn
+cd {{ site_path }}
+${gunicorn_path} -w {{ gunicorn_number_of_workers }} --access-logfile - --error-logfile - -b 127.0.0.1:{{ port }} config.wsgi

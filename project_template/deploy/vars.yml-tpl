@@ -1,0 +1,19 @@
+---
+# public variables for deployment
+postgres_database: {{ project_name }}
+postgres_user: {{ project_name }}
+username: {{ project_name }}
+home_path: "/home/{{ username }}"
+site_path: "{{ home_path }}/site"
+global_python: python3.10
+venv_bin: "{{ site_path }}/venv/bin"
+python: "{{ venv_bin }}/python"
+pip_sync: "{{ venv_bin }}/pip-sync"
+default_path: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+port: 10013
+django_settings_module: "config.settings.production"
+traefik_config_dir: "/etc/traefik/dynamic"
+traefik_config_path: "{{ traefik_config_dir }}/{{ username }}.traefik.yml"
+systemd_unit_path: "/etc/systemd/system/{{ username }}.service"
+gunicorn_number_of_workers: 4
+fqdn: {{ project_name }}.staging.django-cast.com

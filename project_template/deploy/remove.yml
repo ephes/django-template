@@ -1,0 +1,44 @@
+- hosts: production
+  tasks:
+    - name: "Include secret vars"
+      include_vars: secrets.yml
+
+    - name: "Include public vars"
+      include_vars: vars.yml
+
+    - name: Make sure gunicorn service is stopped
+      systemd:
+        state: stopped
+        name: "{{ username }}"
+
+#    - name: Remove postgres database
+#      # install role first:
+#      # ansible-galaxy collection install community.postgresql
+#      community.general.postgresql_db:
+#        name: "{{ postgres_database }}"
+#        state: absent
+#      become: true
+#      become_user: postgres
+#
+#    - name: Remove postgres user
+#      community.general.postgresql_user:
+#        name: "{{ postgres_user }}"
+#        state: absent
+#      become: true
+#      become_user: postgres
+
+    - name: Remove unit file for systemd service
+      file:
+        path: "{{ systemd_unit_path }}"
+        state: absent
+
+    - name: Remove config file for traefik loadbalancer
+      file:
+        path: "{{ traefik_config_path }}"
+        state: absent
+
+    - name: Remove unix user
+      user:
+        name: "{{ username }}"
+        state: absent
+        remove: yes

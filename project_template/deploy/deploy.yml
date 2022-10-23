@@ -1,0 +1,126 @@
+- hosts: production
+  tasks:
+    - name: "Include secret vars"
+      include_vars: secrets.yml
+
+    - name: "Include public vars"
+      include_vars: vars.yml
+
+    - name: Add the unix user with a bash shell
+      user:
+        name: "{{ username }}"
+        shell: /usr/bin/fish
+
+#    - name: Create a new postgres database
+#      # install role first:
+#      # ansible-galaxy collection install community.postgresql
+#      community.general.postgresql_db:
+#        name: "{{ postgres_database }}"
+#        state: present
+#      become: true
+#      become_user: postgres
+#
+#    - name: Create a new postgres user
+#      community.general.postgresql_user:
+#        db: "{{ postgres_database }}"
+#        name: "{{ postgres_user }}"
+#        password: "{{ postgres_password }}"
+#        state: present
+#      become: true
+#      become_user: postgres
+
+    - name: Sync project dir to production
+      ansible.posix.synchronize:
+        src: "{{ playbook_dir }}/../"
+        dest: "{{ site_path }}"
+      become: true
+      become_user: "{{ username }}"
+
+    - name: Create .env file
+      template:
+        src: templates/env.template.j2
+        dest: "{{ site_path }}/.env"
+        mode: "0600"
+        owner: "{{ username }}"
+
+    - name: Create directory for fish config
+      file:
+        path: "{{ home_path }}/.config/fish"
+        state: directory
+        owner: "{{ username }}"
+
+    - name: Create fish config
+      template:
+        src: templates/user_config.fish.template.j2
+        dest: "{{ home_path }}/.config/fish/config.fish"
+        mode: "0644"
+        owner: "{{ username }}"
+
+    - name: Create virtualenv for python
+      shell: "{{ global_python }} -m venv {{ site_path }}/venv"
+      become: true
+      become_user: "{{ username }}"
+
+    - name: Upgrade pip prod venv
+      shell: "{{ python }} -m pip install --upgrade pip"
+      become: true
+      become_user: "{{ username }}"
+
+    - name: Install pip-tools
+      shell: "{{ python }} -m pip install -U pip-tools"
+      become: true
+      become_user: "{{ username }}"
+
+    - name: Install app production requirements
+      shell: "{{ pip_sync }} requirements/production.txt"
+      args:
+        chdir: "{{ site_path }}"
+      become: true
+      become_user: "{{ username }}"
+
+    - name: Create gunicorn start script
+      template:
+        src: gunicorn.sh.j2
+        dest: "{{ site_path }}/gunicorn.sh"
+        owner: "{{ username }}"
+        mode: "0755"
+
+    - name: Run django migrations
+      shell: "{{ python }} manage.py migrate"
+      args:
+        chdir: "{{ site_path }}"
+      become: true
+      become_user: "{{ username }}"
+      environment:
+        DJANGO_SETTINGS_MODULE: "{{ django_settings_module }}"
+
+    - name: Run django collectstatic
+      shell: "{{ python }} manage.py collectstatic --noinput"
+      args:
+        chdir: "{{ site_path }}"
+      become: true
+      become_user: "{{ username }}"
+      environment:
+        DJANGO_SETTINGS_MODULE: "{{ django_settings_module }}"
+
+    - name: Create directory for traefik config
+      file:
+        path: "{{ traefik_config_dir }}"
+        state: directory
+        owner: "{{ username }}"
+
+    - name: Create traefik service config
+      template:
+        src: templates/traefik.template.j2
+        dest: "{{ traefik_config_path }}"
+        mode: '0644'
+
+    - name: Create systemd service unit file
+      template:
+        src: templates/systemd.service.j2
+        dest: "{{ systemd_unit_path }}"
+
+    - name: Make sure gunicorn service is running
+      systemd:
+        state: restarted
+        name: "{{ username }}"

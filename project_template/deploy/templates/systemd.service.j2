@@ -1,0 +1,15 @@
+# Contents of /etc/systemd/system/multi-user.target.wants/{{ username }}.service
+[Unit]
+Description={{ username }} web application
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+WorkingDirectory={{ site_path }}
+User={{ username }}
+Environment="DJANGO_SETTINGS_MODULE={{ django_settings_module }}"
+ExecStart={{ site_path }}/gunicorn.sh
+
+[Install]
+WantedBy=multi-user.target
