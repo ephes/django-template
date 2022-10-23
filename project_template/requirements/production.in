@@ -5,3 +5,4 @@ django-extensions
 gunicorn
 httpx
 psycopg2
+whitenoise
