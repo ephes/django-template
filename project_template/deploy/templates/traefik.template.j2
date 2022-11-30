@@ -18,7 +18,7 @@ http:
       middlewares:
         - csrf
         - sslHeaders
-        - test-compress
+        - gzip-compress
       service: {{ fqdn }}
       tls:
         certResolver: letsencrypt
@@ -36,7 +36,7 @@ http:
         customRequestHeaders:
           X-Forwarded-Proto: "https"
           X-Forwarded-Port: "443"
-    test-compress:
+    gzip-compress:
       compress: {}
 
   services:
