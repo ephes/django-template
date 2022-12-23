@@ -85,8 +85,8 @@
         owner: "{{ username }}"
         mode: "0755"
 
-    - name: Run django migrations
-      shell: "{{ python }} manage.py migrate"
+    - name: Run django collectstatic
+      shell: "{{ python }} manage.py collectstatic --noinput"
       args:
         chdir: "{{ site_path }}"
       become: true
@@ -94,8 +94,8 @@
       environment:
         DJANGO_SETTINGS_MODULE: "{{ django_settings_module }}"
 
-    - name: Run django collectstatic
-      shell: "{{ python }} manage.py collectstatic --noinput"
+    - name: Run django migrations
+      shell: "{{ python }} manage.py migrate"
       args:
         chdir: "{{ site_path }}"
       become: true
