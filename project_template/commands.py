@@ -15,6 +15,7 @@ def update_via_pip_tools(upgrade: bool):
     if upgrade:
         base_command.append("--upgrade")
     base_command.extend([
+        "--resolver=backtracking",
         "--allow-unsafe",
         "--generate-hashes",
         "requirements/production.in",
