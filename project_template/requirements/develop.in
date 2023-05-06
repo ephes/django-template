@@ -5,7 +5,6 @@ djhtml
 jupyter-server<2.0.0
 jupyterlab
 mypy
-nb-black
 notebook
 pip-tools
 pyproject-flake8
