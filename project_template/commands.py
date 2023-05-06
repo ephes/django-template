@@ -36,6 +36,7 @@ def update_via_pip_tools(upgrade: bool):
             "requirements/production.txt",
         ]
     )
+    subprocess.call([sys.executable, "-m", "piptools", "sync", "requirements/production.txt"])
     subprocess.call([sys.executable, "-m", "piptools", "sync", "requirements/develop.txt"])
 
 
