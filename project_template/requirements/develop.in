@@ -2,6 +2,7 @@ black
 coverage
 django-stubs
 djhtml
+jupyter-server<2.0.0
 jupyterlab
 mypy
 nb-black
