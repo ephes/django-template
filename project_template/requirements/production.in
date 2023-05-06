@@ -4,5 +4,5 @@ django-environ
 django-extensions
 gunicorn
 httpx
-psycopg2
+psycopg[binary,pool]
 whitenoise
