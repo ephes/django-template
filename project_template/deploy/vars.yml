@@ -6,7 +6,7 @@ postgres_user: "{{ project_name }}"
 username: "{{ project_name }}"
 home_path: "/home/{{ username }}"
 site_path: "{{ home_path }}/site"
-global_python: python3.10
+global_python: python3.11
 venv_bin: "{{ site_path }}/venv/bin"
 python: "{{ venv_bin }}/python"
 pip_sync: "{{ venv_bin }}/pip-sync"
