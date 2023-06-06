@@ -1,0 +1,12 @@
+---
+roles:
+  # postgres from own github fork
+  - name: ephes.postgresql
+    src: https://github.com/ephes/ansible-role-postgresql
+  # traefik from own github fork
+  - name: ephes.traefik
+    src: https://github.com/ephes/ansible-traefik
+
+collections:
+  - name: community.postgresql
+  - name: community.general  # community.general.django_manage

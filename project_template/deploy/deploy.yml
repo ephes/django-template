@@ -85,19 +85,21 @@
         owner: "{{ username }}"
         mode: "0755"
 
-    - name: Run django collectstatic
-      shell: "{{ python }} manage.py collectstatic --noinput"
-      args:
-        chdir: "{{ site_path }}"
+    - name: Run django migrations
+      community.general.django_manage:
+        command: migrate
+        project_path: "{{ site_path }}"
+        virtualenv: "{{ site_path }}/venv"
       become: true
       become_user: "{{ username }}"
       environment:
         DJANGO_SETTINGS_MODULE: "{{ django_settings_module }}"
 
-    - name: Run django migrations
-      shell: "{{ python }} manage.py migrate"
-      args:
-        chdir: "{{ site_path }}"
+    - name: Run django collectstatic
+      community.general.django_manage:
+        command: collectstatic
+        project_path: "{{ site_path }}"
+        virtualenv: "{{ site_path }}/venv"
       become: true
       become_user: "{{ username }}"
       environment:
