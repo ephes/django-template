@@ -70,7 +70,7 @@ class CleanupTests(unittest.TestCase):
             external.mkdir()
             (external / "keep.pyc").write_text("keep")
             for name in ("build", "dist", "sample.egg-info", "__pycache__"):
-                (project / name).mkdir()
+                (project / name).mkdir(exist_ok=True)
                 (project / name / "artifact").touch()
             nested = project / "apps/nested"
             nested.mkdir()
