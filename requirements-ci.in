@@ -1,0 +1,11 @@
+# Minimal template generation/validation environment; not an application lock.
+Django>=5.2,<5.3
+django-environ
+django-extensions
+whitenoise
+typer
+rich
+pytest
+pytest-django
+ruff
+mypy
