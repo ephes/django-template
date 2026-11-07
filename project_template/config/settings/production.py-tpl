@@ -23,7 +23,10 @@ ALLOWED_HOST = env("ALLOWED_HOST")
 ALLOWED_HOSTS = [ALLOWED_HOST]
 
 # static files
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+}
 
 # Custom Admin URL, use {% verbatim %} {% url 'admin:index' %} {% endverbatim %}
 ADMIN_URL = env("DJANGO_ADMIN_URL")

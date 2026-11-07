@@ -12,6 +12,26 @@ Create an app after you created the project:
     cd apps    
     ../manage.py startapp --template https://github.com/ephes/django-template/releases/download/v0.1.6/app_template.zip <app_name>
 
+# Generated application baseline
+
+Templates built from this checkout with `make release` support Python
+**3.11–3.13** and Django **5.2 LTS** (at least 5.2.19). The published
+v0.1.6 ZIPs linked above predate this baseline; use locally built ZIPs for
+these settings and dependency updates until a future release includes them. Create an isolated virtual environment and install the shipped runtime
+lock before running migrations or starting the application:
+
+    python -m pip install --require-hashes -r requirements/production.txt
+
+Production settings use Django's `STORAGES`: uploaded files retain the default
+`FileSystemStorage`, while static assets use WhiteNoise's compressed manifest
+storage. Set `DJANGO_SECRET_KEY`, `ALLOWED_HOST` and `DJANGO_ADMIN_URL`, then run
+`python manage.py collectstatic --noinput --settings=config.settings.production`
+before serving production traffic. Collection writes hashed asset names and a
+manifest under `staticfiles/`; production static URLs use that manifest.
+Development and test settings retain Django's ordinary static storage.
+These template changes apply to newly generated projects; existing projects
+must update their requirements and settings separately.
+
 # Update Requirements
 
 Change working directory and update dependencies:
@@ -55,12 +75,16 @@ From a fresh virtual environment in this repository:
     make check
     make release
 
-`make check` runs Ruff lint/format checks, mypy and 14 synthetic unittest cases.
+`make check` runs Ruff lint/format checks, mypy and synthetic unittest cases.
 The smoke commits a temporary snapshot of tracked template sources (including
 current edits), builds both ZIPs with `make release`, and generates a project
 and app outside the checkout. It registers the app with local test settings,
 runs Django checks, SQLite migrations, the missing-migration check and a real
-pytest test using the generated pytest configuration. A negative smoke removes
+pytest test using the generated pytest configuration. Production smoke also
+runs checks, migrations, admin login rendering and static collection with dummy
+environment values, then verifies a synthetic asset resolves to its hashed URL.
+Set `TEMPLATE_RUNTIME_PYTHON` to an isolated interpreter installed from the
+production lock to exercise that environment through the same production smoke. A negative smoke removes
 the app configuration module and must fail. Other regressions cover archive
 canaries, cleanup symlinks and fake failing child processes. Nothing invokes
 deployment scripts, remote databases or real user data.

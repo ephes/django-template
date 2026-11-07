@@ -10,7 +10,7 @@ from pathlib import Path
 from test_templates import ROOT
 
 
-def smoke_templates(archives, destination):
+def smoke_templates(archives, destination, runtime_python=sys.executable):
     """Exercise release ZIPs outside their source repository with local SQLite."""
     project = destination / "sample"
     project.mkdir()
@@ -18,11 +18,9 @@ def smoke_templates(archives, destination):
     for key in ("DJANGO_SETTINGS_MODULE", "PYTHONPATH", "DATABASE_URL"):
         env.pop(key, None)
 
-    def run(*args, cwd=project):
+    def run(*args, cwd=project, python=sys.executable):
         try:
-            return subprocess.run(
-                [sys.executable, *args], cwd=cwd, env=env, check=True, capture_output=True, text=True
-            )
+            return subprocess.run([python, *args], cwd=cwd, env=env, check=True, capture_output=True, text=True)
         except subprocess.CalledProcessError as error:
             error.add_note(error.stdout + error.stderr)
             raise
@@ -44,6 +42,29 @@ def smoke_templates(archives, destination):
     run("manage.py", "check", "--settings=config.settings.test")
     run("manage.py", "migrate", "--noinput", "--settings=config.settings.test")
     run("manage.py", "makemigrations", "--check", "--dry-run", "--settings=config.settings.test")
+    # Synthetic production values and a real collected asset exercise the
+    # shipped settings without contacting a host or external database.
+    env.update(DJANGO_SECRET_KEY="synthetic-test-key", ALLOWED_HOST="testserver", DJANGO_ADMIN_URL="admin/")
+    (project / "static").mkdir(exist_ok=True)
+    (project / "static/synthetic.css").write_text("body { color: blue; }\n")
+    for command in (("check",), ("migrate", "--noinput"), ("collectstatic", "--noinput")):
+        run("manage.py", *command, "--settings=config.settings.production", python=runtime_python)
+    run(
+        "manage.py",
+        "shell",
+        "--settings=config.settings.production",
+        "-c",
+        "from django.core.files.storage import storages; "
+        "from django.contrib.staticfiles.storage import staticfiles_storage; "
+        "from django.test import Client; "
+        "assert storages['default'].__class__.__name__ == 'FileSystemStorage'; "
+        "assert staticfiles_storage.__class__.__name__ == 'CompressedManifestStaticFilesStorage'; "
+        "url = staticfiles_storage.url('synthetic.css'); "
+        "assert url.startswith('/static/synthetic.') and not url.endswith('/synthetic.css'); "
+        "assert staticfiles_storage.exists(url.removeprefix('/static/')); "
+        "assert Client().get('/admin/login/').status_code == 200",
+        python=runtime_python,
+    )
     result = run("-m", "pytest", "-q")
     if "1 passed" not in result.stdout:
         raise AssertionError(result.stdout + result.stderr)
@@ -106,7 +127,7 @@ class GeneratedTests(unittest.TestCase):
         self.destination.mkdir()
 
     def test_release_zips_generate_working_project_and_app(self):
-        smoke_templates(self.repo, self.destination)
+        smoke_templates(self.repo, self.destination, os.environ.get("TEMPLATE_RUNTIME_PYTHON", sys.executable))
 
     def test_missing_app_module_fails_smoke(self):
         archive_path = self.repo / "app_template.zip"
