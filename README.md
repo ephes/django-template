@@ -39,6 +39,15 @@ Change working directory and update dependencies:
     cd project_template
     python commands.py update
 
+Locks are refreshed with pip-tools on Python 3.11, with hashes retained. The
+developer lock includes the runtime graph and supports Jupyter Server 2,
+JupyterLab 4 and Notebook 7. `python commands.py jupyterlab` uses
+`manage.py shell_plus --lab` and the public ServerApp settings. It binds to
+127.0.0.1:8888, opens `/lab`, and retains Jupyter's default authentication;
+use the generated login link. Notebook 6 frontend extensions need compatible
+Notebook 7/JupyterLab replacements. See the
+[Jupyter security documentation](https://jupyter-server.readthedocs.io/en/latest/operators/security.html).
+
 # Template maintenance
 
 `make release` builds both ZIPs from **committed HEAD**, with the
@@ -90,7 +99,35 @@ canaries, cleanup symlinks and fake failing child processes. Nothing invokes
 deployment scripts, remote databases or real user data.
 
 GitHub Actions runs the same `make check` on pushes and pull requests for both
-Python versions. `requirements-ci.in` describes this small validation toolchain;
+Python versions, installing the hashed production and developer locks in separate
+virtual environments. Notebook smoke exercises CLI/import compatibility, the
+real django-extensions Lab entry point (version only), loopback settings and enabled
+authentication from the parsed configuration, including an empty-token negative
+fixture, without opening a browser or binding a socket. To run it locally,
+set `TEMPLATE_DEVELOPER_PYTHON` to the developer environment's Python; when unset,
+that one integration case is explicitly skipped. `requirements-ci.in` describes this small validation toolchain;
 `requirements-ci.txt` pins its resolved dependencies. It is separate from the
 application dependency files shipped inside the project template. No publishing
 or release action is configured. This repository has no changelog.
+
+# Audit generated application locks
+
+CI has a separate audit job using **pip-audit 2.10.1**, installed from the
+hashed `requirements-audit.txt` tool lock (`requirements-audit.in` is its input). It reads both shipped
+application locks, requires their hashes, and does not install or resolve
+application dependencies. Vulnerabilities, missing package/advisory information
+and audit command failures fail the job; no advisories are suppressed. Use a
+separate audit virtual environment locally:
+
+    python -m venv /tmp/template-audit
+    /tmp/template-audit/bin/python -m pip install --require-hashes -r requirements-audit.txt
+    make audit PYTHON=/tmp/template-audit/bin/python
+
+`make audit` runs `python -m pip_audit -r <lock> --require-hashes --no-deps
+--disable-pip --strict --progress-spinner off` for
+`project_template/requirements/production.txt` and `develop.txt`, stopping on
+failure. Its cache defaults to `.cache/pip-audit`; set `AUDIT_CACHE_DIR` on
+the make command to use another writable directory.
+`make check` uses synthetic advisory outcomes to verify that vulnerabilities and
+lookup/export errors propagate as gate failures. Real frozen audits must also
+pass against the advisory service; an unavailable service is a failed check.

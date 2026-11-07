@@ -163,7 +163,7 @@ class CommandTests(unittest.TestCase):
         ) as run:
             with self.assertRaises(subprocess.CalledProcessError):
                 self.commands.jupyterlab()
-        self.assertEqual(run.call_args.args[0][:2], [sys.executable, "manage.py"])
+        self.assertEqual(run.call_args.args[0], [sys.executable, "manage.py", "shell_plus", "--lab"])
         self.assertTrue(run.call_args.kwargs["check"])
 
     def test_cli_returns_child_exit_status(self):
