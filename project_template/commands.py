@@ -1,5 +1,6 @@
 import os
 import platform
+import shutil
 import subprocess
 import sys
 import webbrowser
@@ -138,27 +139,28 @@ def update(upgrade: bool = typer.Option(True, "--upgrade/--no-upgrade")):
     update_via_pip_tools(upgrade)
 
 
+def remove_artifact(path):
+    if path.is_symlink() or path.is_file():
+        path.unlink()
+    elif path.is_dir():
+        shutil.rmtree(path)
+
+
 @cli.command()
 def clean_build():
-    commands = [
-        ["rm", "-fr", "build/"],
-        ["rm", "-fr", "dist/"],
-        ["rm", "-fr", "*.egg-info"],
-        ["rm", "-fr", "__pycache__"],
-    ]
-    for command in commands:
-        subprocess.call(*command)
+    root = get_project_root()
+    for name in ("build", "dist", "__pycache__"):
+        remove_artifact(root / name)
+    for path in root.glob("*.egg-info"):
+        remove_artifact(path)
 
 
 @cli.command()
 def clean_pyc():
-    commands = [
-        ["find", ".", "-name", "*.pyc", "-exec", "rm -f {} +"],
-        ["find", ".", "-name", "*.pyo", "-exec", "rm -f {} +"],
-        ["find", ".", "-name", "*~", "-exec",  "rm -f {} +"],
-    ]
-    for command in commands:
-        subprocess.call(*command)
+    for directory, _, files in os.walk(get_project_root(), followlinks=False):
+        for name in files:
+            if name.endswith((".pyc", ".pyo", "~")):
+                (Path(directory) / name).unlink()
 
 
 @cli.command()
