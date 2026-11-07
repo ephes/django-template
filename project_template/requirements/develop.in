@@ -2,10 +2,10 @@ black
 coverage
 django-stubs
 djhtml
-jupyter-server<2.0.0
-jupyterlab
+jupyter-server>=2.21,<3
+jupyterlab>=4.6.4,<5
 mypy
-notebook
+notebook>=7.6.5,<8
 pip-tools
 pyproject-flake8
 pytest
@@ -13,4 +13,4 @@ pytest-django
 rich
 Sphinx
 sphinx-rtd-theme
-typer[all]
+typer

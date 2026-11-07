@@ -1,6 +1,7 @@
 import re
 import unittest
 
+from packaging.version import Version
 from test_templates import ROOT
 
 
@@ -25,3 +26,17 @@ class RuntimeRequirementsTests(unittest.TestCase):
         ):
             with self.subTest(pin=pin):
                 self.assertNotIn(pin + " ", lock)
+
+
+class DeveloperRequirementsTests(unittest.TestCase):
+    def test_maintained_notebook_toolchain(self):
+        requirements = ROOT / "project_template/requirements"
+        source = (requirements / "develop.in").read_text()
+        for constraint in ("jupyter-server>=2.21,<3", "jupyterlab>=4.6.4,<5", "notebook>=7.6.5,<8"):
+            self.assertIn(constraint, source)
+        lock = (requirements / "develop.txt").read_text()
+        for package, minimum in (("jupyter-server", "2.21"), ("jupyterlab", "4.6.4"), ("notebook", "7.6.5")):
+            match = re.search(rf"^{package}==([0-9.]+) ", lock, re.MULTILINE)
+            self.assertIsNotNone(match)
+            assert match is not None
+            self.assertGreaterEqual(Version(match[1]), Version(minimum))

@@ -1,0 +1,2 @@
+# Separate audit toolchain; never install application packages here.
+pip-audit==2.10.1
