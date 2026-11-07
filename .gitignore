@@ -3,3 +3,10 @@ project_template.zip
 
 # app template
 app_template.zip
+
+# Local validation artifacts
+__pycache__/
+*.py[cod]
+.mypy_cache/
+.ruff_cache/
+.venv/

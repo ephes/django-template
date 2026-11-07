@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def load_commands(project):
     spec = importlib.util.spec_from_file_location("generated_commands", project / "commands.py")
+    assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
@@ -50,16 +51,26 @@ class CleanupTests(unittest.TestCase):
             root = Path(directory)
             project = root / "sample"
             project.mkdir()
-            subprocess.run([
-                sys.executable, "-m", "django", "startproject", "--template", str(ROOT / "project_template"),
-                "sample", str(project),
-            ], check=True, capture_output=True)
+            subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "django",
+                    "startproject",
+                    "--template",
+                    str(ROOT / "project_template"),
+                    "sample",
+                    str(project),
+                ],
+                check=True,
+                capture_output=True,
+            )
             commands = load_commands(project)
             external = root / "external"
             external.mkdir()
             (external / "keep.pyc").write_text("keep")
             for name in ("build", "dist", "sample.egg-info", "__pycache__"):
-                (project / name).mkdir()
+                (project / name).mkdir(exist_ok=True)
                 (project / name / "artifact").touch()
             nested = project / "apps/nested"
             nested.mkdir()

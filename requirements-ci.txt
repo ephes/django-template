@@ -1,0 +1,64 @@
+annotated-doc==0.0.5
+    # via typer
+asgiref==3.13.0
+    # via django
+ast-serialize==0.13.1
+    # via mypy
+colorama==0.4.6 ; sys_platform == 'win32'
+    # via
+    #   pytest
+    #   typer
+django==5.2.19
+    # via
+    #   -r requirements-ci.in
+    #   django-extensions
+django-environ==0.14.0
+    # via -r requirements-ci.in
+django-extensions==4.1
+    # via -r requirements-ci.in
+iniconfig==2.3.1
+    # via pytest
+librt==0.16.0 ; platform_python_implementation != 'PyPy'
+    # via mypy
+markdown-it-py==4.2.0
+    # via rich
+mdurl==0.1.2
+    # via markdown-it-py
+mypy==2.4.1
+    # via -r requirements-ci.in
+mypy-extensions==1.2.0
+    # via mypy
+packaging==26.3
+    # via pytest
+pathspec==1.1.1
+    # via mypy
+pluggy==1.7.0
+    # via pytest
+pygments==2.21.0
+    # via
+    #   pytest
+    #   rich
+pytest==9.2.0
+    # via
+    #   -r requirements-ci.in
+    #   pytest-django
+pytest-django==4.14.0
+    # via -r requirements-ci.in
+rich==15.0.0
+    # via
+    #   -r requirements-ci.in
+    #   typer
+ruff==0.17.4
+    # via -r requirements-ci.in
+shellingham==1.5.4
+    # via typer
+sqlparse==0.6.1
+    # via django
+typer==0.28.0
+    # via -r requirements-ci.in
+typing-extensions==4.16.0
+    # via mypy
+tzdata==2026.6 ; sys_platform == 'win32'
+    # via django
+whitenoise==6.12.0
+    # via -r requirements-ci.in
